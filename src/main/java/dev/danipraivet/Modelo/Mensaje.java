@@ -9,7 +9,7 @@ public class Mensaje implements Serializable {
     String nombreUsuario;
     LocalDateTime horaEnvio;
 
-    Mensaje(String contenido, String nombreUsuario) {
+    public Mensaje(String contenido, String nombreUsuario) {
         this.contenido = contenido;
         this.nombreUsuario = nombreUsuario;
         this.horaEnvio = LocalDateTime.now();

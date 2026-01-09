@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.SocketException;
 
 
 public class ConexionMulticast {
@@ -71,4 +72,21 @@ public class ConexionMulticast {
         System.out.println("Desconectado al grupo: " + grupoMulticast);
     }
 
+    public boolean estaConectado() {
+        return conectado;
+    }
+
+    public String getDireccionGrupo() {
+        return grupoMulticast.getHostAddress();
+    }
+
+    public int getPuerto() {
+        return puerto;
+    }
+
+    public void setSoTimeout(int timeout) throws SocketException {
+        if (socket != null) {
+            socket.setSoTimeout(timeout);
+        }
+    }
 }
