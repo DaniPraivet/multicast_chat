@@ -6,9 +6,9 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.SocketException;
 
-
 public class ConexionMulticast {
-    private MulticastSocket socket;
+    private MulticastSocket socketReceptor;  // Para RECIBIR (con puerto específico)
+    private MulticastSocket socketEmisor;    // Para ENVIAR (puerto aleatorio)
     private InetAddress grupoMulticast;
     private int puerto;
     private boolean conectado;
@@ -22,54 +22,74 @@ public class ConexionMulticast {
 
     public void conectar() throws IOException {
         if (conectado) {
-            System.out.println("Ya estas conectado.");
+            System.out.println("Ya está conectado al grupo multicast");
             return;
         }
 
-        socket = new MulticastSocket(puerto);
+        socketReceptor = new MulticastSocket(puerto);
+        socketReceptor.joinGroup(grupoMulticast);
 
-        socket.joinGroup(grupoMulticast);
+        socketEmisor = new MulticastSocket();
 
         conectado = true;
-        System.out.println("Conectado al grupo: " + grupoMulticast + ":" + puerto);
+        System.out.println("Conectado al grupo multicast: " + grupoMulticast + ":" + puerto);
     }
 
     public void enviarMensaje(Mensaje mensaje) throws IOException {
         if (!conectado) {
-            throw new IllegalStateException("No estas conectado al grupo.");
+            throw new IllegalStateException("No está conectado al grupo multicast");
         }
-        String texto = mensaje.aTextoTransmision();
-        byte[] buffer = texto.getBytes("UTF-8");
 
-        DatagramPacket paquete = new DatagramPacket(buffer, buffer.length, grupoMulticast, puerto);
+        String textoMensaje = mensaje.aTextoTransmision();
+        byte[] buffer = textoMensaje.getBytes("UTF-8");
+
+        DatagramPacket paquete = new DatagramPacket(
+                buffer,
+                buffer.length,
+                grupoMulticast,
+                puerto
+        );
+
+        socketEmisor.send(paquete);
     }
 
     public Mensaje recibirMensaje() throws IOException {
         if (!conectado) {
-            throw new IllegalStateException("No estas conectado al grupo.");
+            throw new IllegalStateException("No está conectado al grupo multicast");
         }
 
+        // Preparar buffer para recibir
         byte[] buffer = new byte[TAMANIO_BUFFER];
         DatagramPacket paquete = new DatagramPacket(buffer, buffer.length);
 
-        socket.receive(paquete);
+        socketReceptor.receive(paquete);
 
-        String texto = new String(paquete.getData(), 0, paquete.getLength(), "UTF-8");
+        String textoRecibido = new String(
+                paquete.getData(),
+                0,
+                paquete.getLength(),
+                "UTF-8"
+        );
 
-        return Mensaje.desdeTextoTransmision(texto);
+        return Mensaje.desdeTextoTransmision(textoRecibido);
     }
 
     public void desconectar() throws IOException {
         if (!conectado) {
-            throw new IllegalStateException("No estas conectado.");
+            return;
         }
 
-        if (socket != null) {
-            socket.leaveGroup(grupoMulticast);
-            socket.close();
+        if (socketReceptor != null) {
+            socketReceptor.leaveGroup(grupoMulticast);
+            socketReceptor.close();
         }
+
+        if (socketEmisor != null) {
+            socketEmisor.close();
+        }
+
         conectado = false;
-        System.out.println("Desconectado al grupo: " + grupoMulticast);
+        System.out.println("Desconectado del grupo multicast");
     }
 
     public boolean estaConectado() {
@@ -85,8 +105,8 @@ public class ConexionMulticast {
     }
 
     public void setSoTimeout(int timeout) throws SocketException {
-        if (socket != null) {
-            socket.setSoTimeout(timeout);
+        if (socketReceptor != null) {
+            socketReceptor.setSoTimeout(timeout);
         }
     }
 }

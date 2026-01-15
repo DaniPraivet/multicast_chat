@@ -5,57 +5,69 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Mensaje implements Serializable {
-    String contenido;
-    String nombreUsuario;
-    LocalDateTime horaEnvio;
+    private static final long serialVersionUID = 1L;
+    private static final String SEPARADOR = ":::"; // Separador simple
+
+    private String contenido;
+    private String nombreUsuario;
+    private LocalDateTime timestamp;
 
     public Mensaje(String contenido, String nombreUsuario) {
         this.contenido = contenido;
         this.nombreUsuario = nombreUsuario;
-        this.horaEnvio = LocalDateTime.now();
-    }
-
-    Mensaje(String contenido, String nombreUsuario, LocalDateTime horaEnvio) {
-        this.contenido = contenido;
-        this.nombreUsuario = nombreUsuario;
-        this.horaEnvio = horaEnvio;
+        this.timestamp = LocalDateTime.now();
     }
 
     public String getContenido() {
         return contenido;
     }
+
     public String getNombreUsuario() {
         return nombreUsuario;
     }
-    public LocalDateTime getHoraEnvio() {
-        return horaEnvio;
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
 
     public String aTextoTransmision() {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return nombreUsuario + "|" + dtf.format(horaEnvio) + "|" + contenido;
+        return nombreUsuario + SEPARADOR + contenido;
     }
 
+    // Parseo SIMPLE
     public static Mensaje desdeTextoTransmision(String textoRecibido) {
-        try{
-            String[] partes = textoRecibido.split("\\|", 3);
-            if (partes.length == 3) {
-                throw new IllegalArgumentException("Formato de texto invalido");
+        try {
+            System.out.println("DEBUG - Recibido: [" + textoRecibido + "]");
+
+            if (textoRecibido == null || textoRecibido.trim().isEmpty()) {
+                return null;
             }
 
-            String nombreUsuario = partes[0];
-            LocalDateTime timestamp = LocalDateTime.parse(partes[1], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            String contenido = partes[2];
-            return new Mensaje(contenido, nombreUsuario, timestamp);
-        } catch (Exception e){
-            System.err.println("Error al parsear mensaje: " + e.getMessage());
+            String[] partes = textoRecibido.split(":::", 2);
+
+            if (partes.length != 2) {
+                System.err.println("ERROR - Se esperaban 2 partes, se encontraron: " + partes.length);
+                return null;
+            }
+
+            String nombreUsuario = partes[0].trim();
+            String contenido = partes[1];
+
+            System.out.println("DEBUG - Usuario: [" + nombreUsuario + "]");
+            System.out.println("DEBUG - Contenido: [" + contenido + "]");
+
+            return new Mensaje(contenido, nombreUsuario);
+
+        } catch (Exception e) {
+            System.err.println("Error al parsear: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
 
     public String formatearParaChat() {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
-        return "[" + this.horaEnvio.format(dtf) + "] " + this.nombreUsuario + ":" + this.contenido;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        return "[" + timestamp.format(formatter) + "] " + nombreUsuario + ": " + contenido;
     }
 
     @Override

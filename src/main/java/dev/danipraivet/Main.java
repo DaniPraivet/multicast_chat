@@ -6,8 +6,8 @@ import dev.danipraivet.Modelo.Usuario;
 import javax.swing.*;
 
 public class Main {
-    private static final String DIRECCION_MULTICAST = "230.0.0.1";
-    private static final int PUERTO_MULTICAST = 4446;
+    private static final String DIRECCION_MULTICAST = "231.0.0.5";
+    private static final int PUERTO_MULTICAST = 10000;
 
     public static void main(String[] args) {
         try {
