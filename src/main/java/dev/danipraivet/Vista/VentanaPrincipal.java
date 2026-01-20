@@ -1,7 +1,5 @@
-package vista;
+package dev.danipraivet.Vista;
 
-import dev.danipraivet.Vista.PanelChat;
-import dev.danipraivet.Vista.PanelUsuarios;
 
 import javax.swing.*;
 import java.awt.*;

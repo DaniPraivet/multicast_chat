@@ -17,7 +17,7 @@ public class ControladorChat {
     private GestorMensajes gestorMensajes;
     private ConexionMulticast conexionMulticast;
 
-    private vista.VentanaPrincipal ventana;
+    private VentanaPrincipal ventana;
 
     private ReceptorMensajes receptorMensajes;
     private Thread hiloReceptor;
@@ -33,7 +33,7 @@ public class ControladorChat {
             System.exit(1);
         }
 
-        this.ventana = new vista.VentanaPrincipal(usuario.getNombre());
+        this.ventana = new VentanaPrincipal(usuario.getNombre());
     }
 
     public void iniciarAplicacion() {
@@ -51,6 +51,7 @@ public class ControladorChat {
             ventana.getPanelChat().agregarMensaje(""); // Línea en blanco
 
             ventana.getPanelChat().enfocarCampoTexto();
+            ventana.getPanelUsuarios().agregarUsuario(usuarioActual.getNombre());
 
             enviarMensajeEntrada();
 
@@ -126,6 +127,12 @@ public class ControladorChat {
                     ventana.getPanelChat().agregarMensaje(mensaje.formatearParaChat());
                 }
             });
+            if (!ventana.getPanelUsuarios().contieneUsuario(mensaje.getNombreUsuario())) {
+                ventana.getPanelUsuarios().agregarUsuario(mensaje.getNombreUsuario());
+            }
+            if (mensaje.getContenido().equals("*** Ha salido del chat ***")) {
+                ventana.getPanelUsuarios().eliminarUsuario(mensaje.getNombreUsuario());
+            }
         }
     }
 

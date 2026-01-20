@@ -46,7 +46,7 @@ public class Main {
             nombre = JOptionPane.showInputDialog(
                     null,
                     "Ingrese su nombre de usuario:",
-                    "Chat Multicast - Login",
+                    "Login",
                     JOptionPane.QUESTION_MESSAGE
             );
 
