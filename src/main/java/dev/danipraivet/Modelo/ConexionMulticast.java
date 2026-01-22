@@ -7,8 +7,8 @@ import java.net.MulticastSocket;
 import java.net.SocketException;
 
 public class ConexionMulticast {
-    private MulticastSocket socketReceptor;  // Para RECIBIR (con puerto específico)
-    private MulticastSocket socketEmisor;    // Para ENVIAR (puerto aleatorio)
+    private MulticastSocket socketReceptor;
+    private MulticastSocket socketEmisor;
     private InetAddress grupoMulticast;
     private int puerto;
     private boolean conectado;
@@ -58,7 +58,6 @@ public class ConexionMulticast {
             throw new IllegalStateException("No está conectado al grupo multicast");
         }
 
-        // Preparar buffer para recibir
         byte[] buffer = new byte[TAMANIO_BUFFER];
         DatagramPacket paquete = new DatagramPacket(buffer, buffer.length);
 
